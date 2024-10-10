@@ -3,7 +3,7 @@ import { Elysia } from 'elysia';
 const app = new Elysia()
 
 app.get('/', (req: any, res: any) => {
-  return new Response('ちんこ')
+  return Response.redirect('https://sukusho.cloud/', 302)
 })
 
 app.listen(process.env.PORT || 3000, () => {

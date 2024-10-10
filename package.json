@@ -12,6 +12,7 @@
     "typescript": "5"
   },
   "dependencies": {
+    "@elysiajs/bearer": "^1.1.2",
     "elysia": "1"
   }
 }
