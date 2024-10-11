@@ -52,7 +52,7 @@ app.post('/upload', async ({ body, bearer }) => {
   let uploadLimit = 0
 
   if (json.plan === 'FREE') {
-    uploadLimit = 5 * 1024 * 1024
+    uploadLimit = 2 * 1024 * 1024
   }
   else if (json.plan === 'ProStd') {
     uploadLimit = 50 * 1024 * 1024
@@ -105,7 +105,7 @@ app.post('/upload', async ({ body, bearer }) => {
     },
     body: JSON.stringify({
       url: rawUrl,
-      size: buffer.length / 1024 / 1024,
+      size: buffer.length / 1024 * 1024,
       fileId: fileIdString,
       name: fileId,
       shortUrl,
