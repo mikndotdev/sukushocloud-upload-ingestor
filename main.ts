@@ -108,6 +108,7 @@ app.post('/upload', async ({ body, bearer }) => {
       size: file.size,
       fileId: fileIdString,
       name: fileId,
+      shortUrl,
     })
   })
 
