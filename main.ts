@@ -98,7 +98,7 @@ app.post('/upload', async ({ body, bearer }) => {
 
   const shortUrl = `https://sksh.me/${sid}`
 
-  await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+  const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -111,6 +111,11 @@ app.post('/upload', async ({ body, bearer }) => {
       shortUrl,
     })
   })
+
+  if (!dbRes.ok) {
+    console.error(await dbRes.text())
+    return new Response('Error uploading file', { status: 500 })
+  }
 
   return new Response(JSON.stringify({
     rawUrl,
