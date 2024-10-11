@@ -106,6 +106,7 @@ app.post('/upload', async ({ body, bearer }) => {
     body: JSON.stringify({
       url: rawUrl,
       size: file.size,
+      fileId: fileIdString,
       name: fileId,
     })
   })
@@ -113,7 +114,7 @@ app.post('/upload', async ({ body, bearer }) => {
   return new Response(JSON.stringify({
     rawUrl,
     viewUrl,
-    shortUrl
+    shortUrl,
   }), {
     headers: {
       'Content-Type': 'application/json'
