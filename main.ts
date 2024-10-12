@@ -52,7 +52,7 @@ app.post('/upload', async ({ body, bearer }) => {
   let uploadLimit = 0
 
   if (json.plan === 'FREE') {
-    uploadLimit = 5 * 1024 * 1024
+    uploadLimit = 2 * 1024 * 1024
   }
   else if (json.plan === 'ProStd') {
     uploadLimit = 50 * 1024 * 1024
@@ -80,7 +80,7 @@ app.post('/upload', async ({ body, bearer }) => {
   });
 
   const rawUrl = `https://sukushocloud.mdusercontent.com/${json.id}/${fileId}`
-  const viewUrl = `https://view.sukusho.cloud/${fileIdString}`
+  const viewUrl = `https://view.sukusho.cloud/i/${fileIdString}`
 
   const sid = crypto.randomBytes(3).toString('hex')
 
@@ -98,22 +98,29 @@ app.post('/upload', async ({ body, bearer }) => {
 
   const shortUrl = `https://sksh.me/${sid}`
 
-  await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+  const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       url: rawUrl,
-      size: file.size,
+      size: buffer.length / (1024 * 1024),
+      fileId: fileIdString,
       name: fileId,
+      shortUrl,
     })
   })
+
+  if (!dbRes.ok) {
+    console.error(await dbRes.text())
+    return new Response('Error uploading file', { status: 500 })
+  }
 
   return new Response(JSON.stringify({
     rawUrl,
     viewUrl,
-    shortUrl
+    shortUrl,
   }), {
     headers: {
       'Content-Type': 'application/json'
