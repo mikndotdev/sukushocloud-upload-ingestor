@@ -80,7 +80,7 @@ app.post('/upload', async ({ body, bearer }) => {
   });
 
   const rawUrl = `https://sukushocloud.mdusercontent.com/${json.id}/${fileId}`
-  const viewUrl = `https://view.sukusho.cloud/i/${fileIdString}`
+  const viewUrl = `https://view.sukusho.cloud/${fileIdString}`
 
   const sid = crypto.randomBytes(3).toString('hex')
 
