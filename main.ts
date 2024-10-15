@@ -62,7 +62,7 @@ app.post('/upload', async ({ body, bearer }) => {
   }
 
   if (buffer.length > uploadLimit) {
-    return new Response('Filesize exceeds plan limit', { status: 429 })
+    return new Response('Filesize exceeds plan limit', { status: 413 })
   }
 
   const usedStorage = json.usedStorage * 1024 * 1024
