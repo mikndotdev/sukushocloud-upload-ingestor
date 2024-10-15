@@ -54,6 +54,9 @@ app.post('/upload', async ({ body, bearer }) => {
   if (json.plan === 'FREE') {
     uploadLimit = 2 * 1024 * 1024
   }
+  if (json.plan === 'ProLite') {
+    uploadLimit = 25 * 1024 * 1024
+  }
   else if (json.plan === 'ProStd') {
     uploadLimit = 50 * 1024 * 1024
   }
