@@ -124,7 +124,7 @@ app.post('/upload', async ({body, bearer}) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    content: `New file uploaded by ${json.username} - ${shortUrl}`,
+                    content: `New file uploaded by ${json.id} - ${shortUrl}`,
                 }),
             });
         }
