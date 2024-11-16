@@ -128,44 +128,41 @@ app.post('/upload', async ({body, bearer}) => {
                 }),
             });
         }
-    }
 
-    const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            url: rawUrl,
-            size: buffer.length / (1024 * 1024),
-            fileId: fileIdString,
-            name: fileId,
+        const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                url: rawUrl,
+                size: buffer.length / (1024 * 1024),
+                fileId: fileIdString,
+                name: fileId,
+                shortUrl,
+            }),
+        });
+
+        if (!dbRes.ok) {
+            console.error(await dbRes.text());
+            return new Response('Error uploading file', {status: 500});
+        }
+
+        return new Response(JSON.stringify({
+            rawUrl,
+            viewUrl,
             shortUrl,
-        }),
-    });
-
-    if (!dbRes.ok) {
-        console.error(await dbRes.text());
+            deleteUrl,
+        }), {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    } catch
+        (e) {
+        console.error(e);
         return new Response('Error uploading file', {status: 500});
     }
-
-    return new Response(JSON.stringify({
-        rawUrl,
-        viewUrl,
-        shortUrl,
-        deleteUrl,
-    }), {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-}
-catch
-(e)
-{
-    console.error(e);
-    return new Response('Error uploading file', {status: 500});
-}
 })
 ;
 
