@@ -117,40 +117,57 @@ app.post('/upload', async ({body, bearer}) => {
 
         const shortUrl = `https://sksh.me/${sid}`;
 
-        const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                url: rawUrl,
-                size: buffer.length / (1024 * 1024),
-                fileId: fileIdString,
-                name: fileId,
-                shortUrl,
-            }),
-        });
-
-        if (!dbRes.ok) {
-            console.error(await dbRes.text());
-            return new Response('Error uploading file', {status: 500});
+        if (json.allowDiscordPrefetch === true) {
+            await fetch(process.env.DISCORD_WEBHOOK_URL || "", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    content: `New file uploaded by ${json.username} - ${shortUrl}`,
+                }),
+            });
         }
+    }
 
-        return new Response(JSON.stringify({
-            rawUrl,
-            viewUrl,
+    const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            url: rawUrl,
+            size: buffer.length / (1024 * 1024),
+            fileId: fileIdString,
+            name: fileId,
             shortUrl,
-            deleteUrl,
-        }), {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-    } catch (e) {
-        console.error(e);
+        }),
+    });
+
+    if (!dbRes.ok) {
+        console.error(await dbRes.text());
         return new Response('Error uploading file', {status: 500});
     }
-});
+
+    return new Response(JSON.stringify({
+        rawUrl,
+        viewUrl,
+        shortUrl,
+        deleteUrl,
+    }), {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+}
+catch
+(e)
+{
+    console.error(e);
+    return new Response('Error uploading file', {status: 500});
+}
+})
+;
 
 app.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running on port ${process.env.PORT || 3000}`);
