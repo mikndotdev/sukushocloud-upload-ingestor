@@ -22,5 +22,3 @@ app.use(
 app.use(cors());
 
 app.use(uploadEndpoint);
-
-app.get("/", () => redirect("https://sukusho.cloud"));
