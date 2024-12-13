@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "start": "bun run main.ts",
-    "dev": "bun run --watch main.ts",
+    "dev": "bun run --watch src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts",
     "typecheck": "tsc"
   },
   "devDependencies": {
@@ -16,6 +17,9 @@
     "@aws-sdk/protocol-http": "^3.374.0",
     "@aws-sdk/types": "^3.679.0",
     "@elysiajs/bearer": "^1.1.2",
-    "elysia": "^1.1.19"
+    "@elysiajs/cors": "^1.1.1",
+    "@elysiajs/swagger": "^1.1.6",
+    "elysia": "^1.1.19",
+    "wrangler": "^3.95.0"
   }
 }
