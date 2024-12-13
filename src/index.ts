@@ -9,7 +9,6 @@ export default {
         ctx: Context,
 
     ): Promise<Response> {
-
         return await app.fetch(request, env)
     },
 }

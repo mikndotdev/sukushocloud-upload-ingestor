@@ -1,18 +1,15 @@
-import { config } from 'dotenv';
 import { Elysia } from 'elysia';
 import { bearer } from '@elysiajs/bearer';
 import crypto from 'node:crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { HttpRequest } from '@aws-sdk/protocol-http';
 
-config();
-
 const s3Client = new S3Client({
     region: 'auto',
     endpoint: 'https://fly.storage.tigris.dev',
     credentials: {
-        accessKeyId: process.env.S3_ACCESS_KEY as string || '',
-        secretAccessKey: process.env.S3_SECRET_KEY as string || '',
+        accessKeyId: S3_ACCESS_KEY as string || '',
+        secretAccessKey: S3_SECRET_KEY as string || '',
     },
 });
 
@@ -34,7 +31,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
 
         const key = bearer.toString();
 
-        const userData = await fetch(`${process.env.BACKEND_API_ENDPOINT}/getInfoFromKey?key=${process.env.BACKEND_SIGNING_KEY}&apiKey=${key}`, {
+        const userData = await fetch(`${BACKEND_API_ENDPOINT}/getInfoFromKey?key=${BACKEND_SIGNING_KEY}&apiKey=${key}`, {
             method: 'GET',
         });
 
@@ -108,7 +105,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.SHORTFLARE_API_KEY}`,
+                    'Authorization': `Bearer ${SHORTFLARE_API_KEY}`,
                 },
                 body: JSON.stringify({
                     slug: sid,
@@ -119,7 +116,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
             const shortUrl = `https://sksh.me/${sid}`;
 
             if (json.allowDiscordPrefetch) {
-                await fetch(process.env.DISCORD_WEBHOOK_URL || "", {
+                await fetch(DISCORD_WEBHOOK_URL || "", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -130,7 +127,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
                 });
             }
 
-            const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+            const dbRes = await fetch(`${BACKEND_API_ENDPOINT}/addImage?key=${BACKEND_SIGNING_KEY}&id=${json.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
