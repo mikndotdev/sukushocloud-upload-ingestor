@@ -1,8 +1,11 @@
+import { config } from 'dotenv';
 import { Elysia } from 'elysia';
 import { bearer } from '@elysiajs/bearer';
 import crypto from 'node:crypto';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { HttpRequest } from '@aws-sdk/protocol-http';
+
+config();
 
 const s3Client = new S3Client({
     region: 'auto',

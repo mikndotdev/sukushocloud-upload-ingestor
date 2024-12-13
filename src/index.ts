@@ -10,6 +10,6 @@ export default {
 
     ): Promise<Response> {
 
-        return await app.fetch(request)
+        return await app.fetch(request, env)
     },
 }
