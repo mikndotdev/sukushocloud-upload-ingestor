@@ -8,8 +8,8 @@ const s3Client = new S3Client({
     region: 'auto',
     endpoint: 'https://fly.storage.tigris.dev',
     credentials: {
-        accessKeyId: env.S3_ACCESS_KEY as string || '',
-        secretAccessKey: env.S3_SECRET_KEY as string || '',
+        accessKeyId: globalThis.S3_ACCESS_KEY as string || '',
+        secretAccessKey: globalThis.S3_SECRET_KEY as string || '',
     },
 });
 
@@ -31,7 +31,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
 
         const key = bearer.toString();
 
-        const userData = await fetch(`${env.BACKEND_API_ENDPOINT}/getInfoFromKey?key=${env.BACKEND_SIGNING_KEY}&apiKey=${key}`, {
+        const userData = await fetch(`${globalThis.BACKEND_API_ENDPOINT}/getInfoFromKey?key=${globalThis.BACKEND_SIGNING_KEY}&apiKey=${key}`, {
             method: 'GET',
         });
 
@@ -105,7 +105,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${env.SHORTFLARE_API_KEY}`,
+                    'Authorization': `Bearer ${globalThis.SHORTFLARE_API_KEY}`,
                 },
                 body: JSON.stringify({
                     slug: sid,
@@ -116,7 +116,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
             const shortUrl = `https://sksh.me/${sid}`;
 
             if (json.allowDiscordPrefetch) {
-                await fetch(env.DISCORD_WEBHOOK_URL || "", {
+                await fetch(globalThis.DISCORD_WEBHOOK_URL || "", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ export const uploadEndpoint = new Elysia({ prefix: "/upload" }).use(bearer()).po
                 });
             }
 
-            const dbRes = await fetch(`${env.BACKEND_API_ENDPOINT}/addImage?key=${env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+            const dbRes = await fetch(`${globalThis.BACKEND_API_ENDPOINT}/addImage?key=${globalThis.BACKEND_SIGNING_KEY}&id=${json.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
