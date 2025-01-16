@@ -9,7 +9,7 @@ jobs:
   build-amd64:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: artifacter-bot
+      IMAGE_NAME: sukushocloud-upload-api
 
     steps:
       - name: Checkout code
