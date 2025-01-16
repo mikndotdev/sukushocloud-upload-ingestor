@@ -9,7 +9,7 @@ jobs:
   build-amd64:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: sukushocloud-upload-api
+      IMAGE_NAME: sukushocloud-upload-ingestor
 
     steps:
       - name: Checkout code
