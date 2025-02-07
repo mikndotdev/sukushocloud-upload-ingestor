@@ -3,8 +3,8 @@
   "type": "module",
   "scripts": {
     "start": "bun run main.ts",
-    "dev": "bun run --watch src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
     "typecheck": "tsc"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/swagger": "^1.1.6",
     "elysia": "^1.1.19",
+    "hono": "^4.7.0",
     "wrangler": "^3.95.0"
   }
 }
