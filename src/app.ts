@@ -1,19 +1,11 @@
-import {Elysia} from 'elysia';
-import {bearer} from '@elysiajs/bearer';
-import crypto from 'node:crypto';
-import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import {HttpRequest} from '@aws-sdk/protocol-http';
+import { Hono } from "hono";
+import { type Bindings } from "./bindings";
+import {HttpRequest} from "@aws-sdk/protocol-http";
+import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import crypto from "node:crypto";
 
-const s3Client = new S3Client({
-    region: 'auto',
-    endpoint: 'https://fly.storage.tigris.dev',
-    credentials: {
-        accessKeyId: process.env.S3_ACCESS_KEY as string || '',
-        secretAccessKey: process.env.S3_SECRET_KEY as string || '',
-    },
-});
+const app = new Hono<{ Bindings: Bindings }>();
 
-// Middleware to add custom header
 const addCustomHeaderMiddleware = (preferredRegion: string) => (next: any) => async (args: any) => {
     if (HttpRequest.isInstance(args.request)) {
         args.request.headers['X-Tigris-Regions'] = preferredRegion;
@@ -21,15 +13,20 @@ const addCustomHeaderMiddleware = (preferredRegion: string) => (next: any) => as
     return next(args);
 };
 
-const app = new Elysia();
+app.post('/upload', async (c) => {
 
-app.use(bearer());
+    const s3Client = new S3Client({
+        region: 'auto',
+        endpoint: 'https://fly.storage.tigris.dev',
+        credentials: {
+            accessKeyId: c.env.S3_ACCESS_KEY as string || '',
+            secretAccessKey: c.env.S3_SECRET_KEY as string || '',
+        },
+    });
 
-app.get('/', () => {
-    return Response.redirect('https://sukusho.cloud/', 302);
-});
+    const bearer = c.req.header('Authorization')?.replace('Bearer ', '');
+    const body = await c.req.parseBody();
 
-app.post('/upload', async ({body, bearer}) => {
     if (!bearer) {
         return new Response('Unauthorized', {status: 401});
     }
@@ -40,7 +37,7 @@ app.post('/upload', async ({body, bearer}) => {
 
     const key = bearer.toString();
 
-    const userData = await fetch(`${process.env.BACKEND_API_ENDPOINT}/getInfoFromKey?key=${process.env.BACKEND_SIGNING_KEY}&apiKey=${key}`, {
+    const userData = await fetch(`${c.env.BACKEND_API_ENDPOINT}/getInfoFromKey?key=${c.env.BACKEND_SIGNING_KEY}&apiKey=${key}`, {
         method: 'GET',
     });
 
@@ -48,15 +45,21 @@ app.post('/upload', async ({body, bearer}) => {
         return new Response('Unauthorized', {status: 401});
     }
 
-    const json = await userData.json();
+    const json = await userData.json() as {
+        id: string,
+        plan: string,
+        preferredRegion: string,
+        usedStorage: number,
+        totalStorage: number,
+        allowDiscordPrefetch: boolean,
+    }
     const preferredRegion = json.preferredRegion;
 
-    // Add middleware to the S3 client with preferredRegion
     s3Client.middlewareStack.add(addCustomHeaderMiddleware(preferredRegion), {
         step: 'build',
     });
 
-    const file = body.file;
+    const file = body['file'] as File;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -107,7 +110,7 @@ app.post('/upload', async ({body, bearer}) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.SHORTFLARE_API_KEY}`,
+                'Authorization': `Bearer ${c.env.SHORTFLARE_API_KEY}`,
             },
             body: JSON.stringify({
                 slug: sid,
@@ -117,8 +120,8 @@ app.post('/upload', async ({body, bearer}) => {
 
         const shortUrl = `https://sksh.me/${sid}`;
 
-        if (json.allowDiscordPrefetch === true) {
-            await fetch(process.env.DISCORD_WEBHOOK_URL || "", {
+        if (json.allowDiscordPrefetch) {
+            await fetch(c.env.DISCORD_WEBHOOK_URL || "", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -129,7 +132,7 @@ app.post('/upload', async ({body, bearer}) => {
             });
         }
 
-        const dbRes = await fetch(`${process.env.BACKEND_API_ENDPOINT}/addImage?key=${process.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
+        const dbRes = await fetch(`${c.env.BACKEND_API_ENDPOINT}/addImage?key=${c.env.BACKEND_SIGNING_KEY}&id=${json.id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -163,9 +166,6 @@ app.post('/upload', async ({body, bearer}) => {
         console.error(e);
         return new Response('Error uploading file', {status: 500});
     }
-})
-;
-
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
+
+export default app;

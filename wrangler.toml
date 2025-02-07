@@ -1,0 +1,4 @@
+name = "sukushocloud-ingestor"
+compatibility_date = "2025-01-23"
+main = "src/app.ts"
+compatibility_flags = ["nodejs_compat"]
