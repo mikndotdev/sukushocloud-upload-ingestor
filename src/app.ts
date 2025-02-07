@@ -1,10 +1,13 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { type Bindings } from "./bindings";
 import {HttpRequest} from "@aws-sdk/protocol-http";
 import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import crypto from "node:crypto";
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+app.use(cors());
 
 const addCustomHeaderMiddleware = (preferredRegion: string) => (next: any) => async (args: any) => {
     if (HttpRequest.isInstance(args.request)) {
